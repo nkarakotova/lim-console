@@ -2,3 +2,5 @@ github.com/nkarakotova/lim-core v0.0.0-20240526000338-009f57da7c00 h1:oj4Gk4wL4H
 github.com/nkarakotova/lim-core v0.0.0-20240526000338-009f57da7c00/go.mod h1:jldmSi15NTCFq7jcP22SDA3/EEcNxtjDiTBsi3FJOmg=
 github.com/nkarakotova/lim-core v0.0.0-20240528113113-08195ec411b4 h1:B12SluL4iKiZ709REaKxzdzlOCH4W8gzyRzNl5JgZPM=
 github.com/nkarakotova/lim-core v0.0.0-20240528113113-08195ec411b4/go.mod h1:T17d4c4SMttCaH9RyoXZAvdKDTcvd5C7SXziZXTFbYw=
+github.com/nkarakotova/lim-core v0.0.0-20240915182240-fa2e5bfbb9c9 h1:A50D7lJ0eMdMI7hzyTnC/E0AHXX55N2hopqerqfwrw8=
+github.com/nkarakotova/lim-core v0.0.0-20240915182240-fa2e5bfbb9c9/go.mod h1:T17d4c4SMttCaH9RyoXZAvdKDTcvd5C7SXziZXTFbYw=
