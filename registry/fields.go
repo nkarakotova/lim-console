@@ -7,8 +7,6 @@ import (
 type AppServiceFields struct {
 	ClientService       services.ClientService
 	CoachService        services.CoachService
-	DirectionService    services.DirectionService
 	HallService         services.HallService
-	SubscriptionService services.SubscriptionService
 	TrainingService     services.TrainingService
 }

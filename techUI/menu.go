@@ -13,8 +13,7 @@ const menu_string = `Меню гостя:
 	3 -- авторизироваться как администратор
 	4 -- посмотреть расписание на неделю
 	5 -- посмотреть расписание на выбранный промежуток времени
-	6 -- посмотреть все направления
-	7 -- посмотреть тренеров по направлению
+	6 -- посмотреть тренеров
 Выберите пункт меню: `
 
 func RunMenu(a *registry.AppServiceFields, adminLogin, adminPassword string) {
@@ -60,8 +59,6 @@ func RunMenu(a *registry.AppServiceFields, adminLogin, adminPassword string) {
 		case 5:
 			printTrainings(a)
 		case 6:
-			printAllDirections(a)
-		case 7:
 			printCoaches(a)
 		default:
 			fmt.Printf("\nНеверный пункт меню!\n\n")

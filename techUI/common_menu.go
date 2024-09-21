@@ -6,7 +6,6 @@ import (
 
 	"github.com/nkarakotova/lim-console/registry"
 	"github.com/nkarakotova/lim-core/errors/menuErrors"
-	"github.com/nkarakotova/lim-core/models"
 )
 
 func printTrainings(a *registry.AppServiceFields) error {
@@ -67,98 +66,21 @@ func printTrainingsOnWeek(a *registry.AppServiceFields) error {
 	return nil
 }
 
-func printAllDirections(a *registry.AppServiceFields) error {
-	directions, err := a.DirectionService.GetAll()
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	if len(directions) == 0 {
-		fmt.Println("Направления ещё не добавлены!")
-		return menuErrors.ErrorMenu
-	}
-
-	var gender string
-
-	fmt.Printf("Все направления: ")
-	for _, d := range directions {
-		switch d.AcceptableGender {
-		case models.Unknown:
-			gender = "любой"
-		case models.Male:
-			gender = "мужской"
-		case models.Female:
-			gender = "женский"
-		default:
-			fmt.Println("Некорректно заданный пол!")
-			return menuErrors.ErrorMenu
-		}
-
-		fmt.Printf("\nНазвание: %s\nОписание: %s\nДопустимый пол: %s\n\n", d.Name, d.Description, gender)
-	}
-	return nil
-}
-
-func getDirection(a *registry.AppServiceFields) (*models.Direction, error) {
-	printAllDirections(a)
-	var directionName string
-	fmt.Printf("Введите название направления: ")
-	_, err := fmt.Scanf("%s", &directionName)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	direction, err := a.DirectionService.GetByName(directionName)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return direction, nil
-}
-
 func printCoaches(a *registry.AppServiceFields) error {
-	direction, err := getDirection(a)
-	if err != nil {
-		return err
-	}
-
-	coaches, err := a.CoachService.GetAllByDirection(direction.ID)
+	coaches, err := a.CoachService.GetAll()
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
 	if len(coaches) == 0 {
-		fmt.Println("По данному направлению нет тренеров!")
+		fmt.Println("Тренеров нет!")
 		return menuErrors.ErrorMenu
 	}
 
-	fmt.Printf("Тренера по данному направлению: ")
+	fmt.Printf("Тренера: ")
 	for _, c := range coaches {
-		fmt.Printf("\nИмя: %s\nОписание: %s\n\n", c.Name, c.Description)
-	}
-
-	return nil
-}
-
-func printCoachesByDirection(a *registry.AppServiceFields, direction *models.Direction) error {
-	coaches, err := a.CoachService.GetAllByDirection(direction.ID)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	if len(coaches) == 0 {
-		fmt.Println("По данному направлению нет тренеров!")
-		return menuErrors.ErrorMenu
-	}
-
-	fmt.Printf("Тренера по данному направлению: ")
-	for _, c := range coaches {
-		fmt.Printf("\nИмя: %s\nОписание: %s\n\n", c.Name, c.Description)
+		fmt.Printf("\nИмя: %s\n\n", c.Name)
 	}
 
 	return nil

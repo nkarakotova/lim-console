@@ -67,28 +67,10 @@ func createClient(a *registry.AppServiceFields) (*models.Client, error) {
 		return nil, err
 	}
 
-	var age uint16
-	fmt.Printf("Введите возраст: ")
-	_, err = fmt.Scanf("%d", &age)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	var gender models.Gender
-	fmt.Printf("Введите пол (0 - не указано, 1 - мужской, 2 - женский): ")
-	_, err = fmt.Scanf("%d", &gender)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
 	client := &models.Client{Name: name,
 		Telephone: telephone,
 		Mail:      mail,
-		Password:  password,
-		Age:       age,
-		Gender:    gender}
+		Password:  password}
 
 	err = a.ClientService.Create(client)
 	if err != nil {
@@ -100,34 +82,7 @@ func createClient(a *registry.AppServiceFields) (*models.Client, error) {
 }
 
 func printInfoClient(client *models.Client) {
-	var gender string
-
-	switch client.Gender {
-	case models.Unknown:
-		gender = "не указан"
-	case models.Male:
-		gender = "мужской"
-	case models.Female:
-		gender = "женский"
-	default:
-		fmt.Println("Некорректно заданный пол!")
-	}
-	fmt.Printf("\nИмя: %s\nТелефон: %s\nПочта: %s\nВозраст: %d\nПол: %s\n\n", client.Name, client.Telephone, client.Mail, client.Age, gender)
-}
-
-func printSubscription(a *registry.AppServiceFields, client *models.Client) {
-	if client.SubscriptionID == 0 {
-		fmt.Println("Нет абонемента!")
-		return
-	}
-
-	subscription, err := a.SubscriptionService.GetByID(client.SubscriptionID)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Printf("\nДата начала действия: %s\nДата конца действия: %s\nОставшееся количество тренировок: %d\n\n", subscription.StartDate, subscription.EndDate, subscription.RemainingTrainingsNum)
+	fmt.Printf("\nИмя: %s\nТелефон: %s\nПочта: %s\n\n", client.Name, client.Telephone, client.Mail)
 }
 
 func createAssigenment(a *registry.AppServiceFields, client *models.Client) {
@@ -201,13 +156,10 @@ const client_loop_string = `Меню клиента:
 	1 -- посмотреть информацию о себе
 	2 -- посмотреть расписание на неделю
 	3 -- посмотреть расписание на выбраный промежуток времени 
-	4 -- посмотреть направления
-	5 -- посмотреть тренеров по направлению
-	6 -- посмотреть информацию по абонементу
-	7 -- записаться на тренировку
-	8 -- отменить запись на тренировку
-	9 -- посмотреть тренировки, на которые есть запись на неделю
-	10 -- посмотреть тренировки, на которые есть запись на выбранный промежуток времени
+	4 -- посмотреть тренеров по направлению
+	5 -- записаться на тренировку
+	6 -- отменить запись на тренировку
+	7 -- посмотреть тренировки, на которые есть запись на неделю
 Выберите действие: `
 
 func clientMenu(a *registry.AppServiceFields, client *models.Client) {
@@ -236,16 +188,12 @@ func clientMenu(a *registry.AppServiceFields, client *models.Client) {
 		case 3:
 			printTrainings(a)
 		case 4:
-			printAllDirections(a)
-		case 5:
 			printCoaches(a)
-		case 6:
-			printSubscription(a, client)
-		case 7:
+		case 5:
 			createAssigenment(a, client)
-		case 8:
+		case 6:
 			deleteAssigenment(a, client)
-		case 9:
+		case 7:
 			printAssigenment(a, client)
 		default:
 			fmt.Printf("\nНеверный пункт меню!\n\n")

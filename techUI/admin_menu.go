@@ -50,15 +50,7 @@ func createCoach(a *registry.AppServiceFields) {
 		return
 	}
 
-	fmt.Println("Введите описание: ")
-	description, err := in.ReadString('\n')
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	coach := &models.Coach{Name: name,
-		Description: description}
+	coach := &models.Coach{Name: name}
 
 	err = a.CoachService.Create(coach)
 	if err != nil {
@@ -67,47 +59,6 @@ func createCoach(a *registry.AppServiceFields) {
 	}
 
 	fmt.Printf("\nТренер успешно добавлен!\n\n")
-}
-
-func createDirection(a *registry.AppServiceFields) {
-	var name string
-	fmt.Printf("Введите название: ")
-	_, err := fmt.Scanf("%s", &name)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("Введите описание: ")
-	description, err := in.ReadString('\n')
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	var acceptableGender models.Gender
-	fmt.Printf("Введите допустимый пол (0 - не указано, 1 - мужской, 2 - женский): ")
-	_, err = fmt.Scanf("%d", &acceptableGender)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	if acceptableGender != models.Male && acceptableGender != models.Female && acceptableGender != models.Unknown {
-		fmt.Println("Пол введён некорректно!")
-		return
-	}
-
-	direction := &models.Direction{Name: name,
-		Description:      description,
-		AcceptableGender: acceptableGender}
-
-	err = a.DirectionService.Create(direction)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Printf("\nНаправление успешно добавлено!\n\n")
 }
 
 func createHall(a *registry.AppServiceFields) {
@@ -119,16 +70,7 @@ func createHall(a *registry.AppServiceFields) {
 		return
 	}
 
-	var capacity uint64
-	fmt.Printf("Введите вместительность: ")
-	_, err = fmt.Scanf("%d", &capacity)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	hall := &models.Hall{Number: number,
-		Capacity: capacity}
+	hall := &models.Hall{Number: number}
 
 	err = a.HallService.Create(hall)
 	if err != nil {
@@ -139,67 +81,10 @@ func createHall(a *registry.AppServiceFields) {
 	fmt.Printf("\nЗал успешно добавлен!\n\n")
 }
 
-func addDirectionToCoach(a *registry.AppServiceFields) {
-	var coachName string
-	fmt.Printf("Введите имя тренера: ")
-	_, err := fmt.Scanf("%s", &coachName)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	coach, err := a.CoachService.GetByName(coachName)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	var directionName string
-	fmt.Printf("Введите название направления: ")
-	_, err = fmt.Scanf("%s", &directionName)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	direction, err := a.DirectionService.GetByName(directionName)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	err = a.CoachService.AddDirection(coach.ID, direction.ID)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Printf("\nНаправление успешно добавлено тренеру!\n\n")
-}
-
 func createTraining(a *registry.AppServiceFields) {
 	printTrainingsOnWeek(a)
-	err := printAllDirections(a)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 
-	var directionName string
-	fmt.Printf("Введите название направления: ")
-	_, err = fmt.Scanf("%s", &directionName)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	direction, err := a.DirectionService.GetByName(directionName)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	err = printCoachesByDirection(a, direction)
+	err := printCoaches(a)
 	if err != nil {
 		return
 	}
@@ -238,7 +123,7 @@ func createTraining(a *registry.AppServiceFields) {
 		return
 	}
 
-	fmt.Println("Время -> свободные залы: вместительность")
+	fmt.Println("Время -> свободные залы")
 	for _, t := range times {
 		hour, _, _ := t.Clock()
 		halls, err := a.HallService.GetFreeOnDateTime(time.Date(year, month, day, hour, 0, 0, 0, time.UTC))
@@ -255,22 +140,14 @@ func createTraining(a *registry.AppServiceFields) {
 		}
 
 		for _, h := range halls {
-			fmt.Printf("-> %d: %d\n", h.Number, h.Capacity)
+			fmt.Printf("-> %d\n", h.Number)
 		}
 	}
 
 	var hour int
-	var hallNum, availablePlacesNum uint64
+	var hallNum, placesNum uint64
 	fmt.Printf("Выберете время, зал и количество человек(через пробел): ")
-	_, err = fmt.Scanf("%d %d %d", &hour, &hallNum, &availablePlacesNum)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	var acceptableAge uint16
-	fmt.Printf("Введите допустимый возраст для посещения тренировки: ")
-	_, err = fmt.Scanf("%d", &acceptableAge)
+	_, err = fmt.Scanf("%d %d %d", &hour, &hallNum, &placesNum)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -292,12 +169,9 @@ func createTraining(a *registry.AppServiceFields) {
 
 	training := &models.Training{CoachID: coach.ID,
 		HallID:             hall.ID,
-		DirectionID:        direction.ID,
 		Name:               name,
 		DateTime:           time.Date(year, month, day, hour, 0, 0, 0, time.UTC),
-		PlacesNum:          availablePlacesNum,
-		AvailablePlacesNum: availablePlacesNum,
-		AcceptableAge:      acceptableAge}
+		PlacesNum:          placesNum}
 
 	err = a.TrainingService.Create(training)
 	if err != nil {
@@ -331,80 +205,6 @@ func deleteTraining(a *registry.AppServiceFields) {
 	fmt.Println("Тренировка успешно удалена!")
 }
 
-func createSubscriptionType(subscriptionType int) (*models.Subscription, error) {
-	var subscription *models.Subscription
-
-	switch subscriptionType {
-	case 1:
-		subscription = &models.Subscription{TrainingsNum: 12,
-			RemainingTrainingsNum: 12,
-			Cost:                  5000,
-			StartDate:             time.Now(),
-			EndDate:               time.Now().AddDate(0, 1, 0)}
-	case 2:
-		subscription = &models.Subscription{TrainingsNum: 24,
-			RemainingTrainingsNum: 24,
-			Cost:                  10000,
-			StartDate:             time.Now(),
-			EndDate:               time.Now().AddDate(0, 2, 0)}
-	case 3:
-		subscription = &models.Subscription{TrainingsNum: 36,
-			RemainingTrainingsNum: 36,
-			Cost:                  15000,
-			StartDate:             time.Now(),
-			EndDate:               time.Now().AddDate(0, 3, 0)}
-	default:
-		fmt.Println("Типа с таким номером нет!")
-		return nil, menuErrors.ErrorMenu
-	}
-
-	return subscription, nil
-}
-
-const subscription_types_string = `Типы абонементов:
-	1 -- срок действия: 1 месяц  (12 занятий)
-	2 -- срок действия: 2 месяца (24 занятий)
-	3 -- срок действия: 3 месяца (36 занятий)
-`
-
-func createSubscription(a *registry.AppServiceFields) {
-	var telephone string
-	fmt.Printf("Введите телефон клиента: ")
-	_, err := fmt.Scanf("%s", &telephone)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	client, err := a.ClientService.GetByTelephone(telephone)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Printf("%s", subscription_types_string)
-	fmt.Printf("Выберете тип абонимента: ")
-	var subscriptionType int
-	_, err = fmt.Scanf("%d", &subscriptionType)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	subscription, err := createSubscriptionType(subscriptionType)
-	if err != nil {
-		return
-	}
-
-	err = a.SubscriptionService.Create(subscription, client.ID)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("Абонемент создан успешно!")
-}
-
 func printClient(a *registry.AppServiceFields) {
 
 	var telephone string
@@ -430,11 +230,8 @@ const admin_loop_string = `Меню администратора:
 	3 -- добавить тренировку
 	4 -- удалить тренировку
 	5 -- добавить тренера
-	6 -- добавить направление
-	7 -- добавить тренеру направление
-	8 -- посмотреть тренеров по направлению
-	9 -- добавить зал
-	10 -- добавить клиенту абонемент
+	6 -- посмотреть тренеров
+	7 -- добавить зал
 Выберите действие: `
 
 func adminMenu(a *registry.AppServiceFields) {
@@ -467,16 +264,10 @@ func adminMenu(a *registry.AppServiceFields) {
 		case 5:
 			createCoach(a)
 		case 6:
-			createDirection(a)
-		case 7:
-			addDirectionToCoach(a)
-		case 8:
 			printCoaches(a)
-		case 9:
+		case 7:
 			createHall(a)
-		case 10:
-			createSubscription(a)
-		case 11:
+		case 8:
 			printClient(a)
 		default:
 			fmt.Printf("\nНеверный пункт меню!\n\n")
